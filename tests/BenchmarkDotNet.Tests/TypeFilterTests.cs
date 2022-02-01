@@ -7,6 +7,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.ConsoleArguments;
 using BenchmarkDotNet.Extensions;
 using BenchmarkDotNet.Loggers;
+using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Tests;
 using BenchmarkDotNet.Tests.Loggers;
 using JetBrains.Annotations;
@@ -22,11 +23,9 @@ namespace BenchmarkDotNet.Tests
         public TypeFilterTests(ITestOutputHelper output) => Output = output;
 
         [Fact]
-        public void ReturnsNoBenchmarksForInvalidTypes()
+        public void ThrowsForInvalidTypes()
         {
-            var benchmarks = Filter(new[] { typeof(ClassC) }, new[] { "--filter", "*" });
-
-            Assert.Empty(benchmarks);
+            Assert.Throws<InvalidBenchmarkDeclarationException>(() => Filter(new[] { typeof(ClassC) }, new[] { "--filter", "*" }));
         }
 
         [Fact]
