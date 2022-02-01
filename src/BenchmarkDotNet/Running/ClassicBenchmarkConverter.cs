@@ -81,10 +81,10 @@ namespace BenchmarkDotNet.Running
                 return Array.Empty<BenchmarkRunInfo>();
             }
 
-            var types = compilerResults.CompiledAssembly.GetTypes();
+            var benchmarkTypes = compilerResults.CompiledAssembly.GetRunnableBenchmarks();
 
             var resultBenchmarks = new List<BenchmarkRunInfo>();
-            foreach (var type in types)
+            foreach (var type in benchmarkTypes)
             {
                 var runInfo = TypeToBenchmarks(type, config);
                 var benchmarks = runInfo.BenchmarksCases.Select(b =>
