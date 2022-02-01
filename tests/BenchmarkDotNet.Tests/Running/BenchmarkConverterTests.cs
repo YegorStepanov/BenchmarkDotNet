@@ -1,9 +1,14 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Tests.XUnit;
+using JetBrains.Annotations;
 using Perfolizer.Mathematics.OutlierDetection;
 using Xunit;
 
@@ -197,6 +202,112 @@ namespace BenchmarkDotNet.Tests.Running
         public class WithFewMutators
         {
             [Benchmark] public void Method() { }
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData(typeof(IncorrectType))]
+        [InlineData(typeof(string))]
+        public void TypeToBenchmarks_IncorrectArgumentsThrowMessage(Type type)
+        {
+            ThrowsMessage(() => BenchmarkConverter.TypeToBenchmarks(type));
+        }
+
+        [Fact]
+        public void TypesToBenchmarks_IncorrectArgumentsThrowMessage()
+        {
+            ThrowsMessage(() => BenchmarkConverter.TypesToBenchmarks(null));
+            ThrowsMessage(() => BenchmarkConverter.TypesToBenchmarks(Array.Empty<Type>()));
+            ThrowsMessage(() => BenchmarkConverter.TypesToBenchmarks(new Type[] { null }));
+
+            ThrowsMessage(() => BenchmarkConverter.TypesToBenchmarks(new Type[] { typeof(IncorrectType) }));
+            ThrowsMessage(() => BenchmarkConverter.TypesToBenchmarks(new Type[] { typeof(CorrectType), typeof(IncorrectType) }));
+        }
+
+        [Fact]
+        public void MethodsToBenchmarks_IncorrectArgumentsThrowMessage()
+        {
+            ThrowsMessage(() => BenchmarkConverter.MethodsToBenchmarks(null, null));
+            ThrowsMessage(() => BenchmarkConverter.MethodsToBenchmarks(typeof(CorrectType), null));
+            ThrowsMessage(() => BenchmarkConverter.MethodsToBenchmarks(null, typeof(CorrectType).GetMethods()));
+            ThrowsMessage(() => BenchmarkConverter.MethodsToBenchmarks(null, Array.Empty<MethodInfo>()));
+            ThrowsMessage(() => BenchmarkConverter.MethodsToBenchmarks(null, new MethodInfo[] { null }));
+            ThrowsMessage(() => BenchmarkConverter.MethodsToBenchmarks(typeof(CorrectType), new MethodInfo[] { null }));
+        }
+
+        [Fact]
+        public void AssemblyToBenchmarks_IncorrectArgumentsThrowMessage()
+        {
+            ThrowsMessage(() => BenchmarkConverter.AssemblyToBenchmarks(null));
+            ThrowsMessage(() => BenchmarkConverter.AssemblyToBenchmarks(typeof(int).Assembly));
+        }
+
+        [Fact]
+        public void MethodsToBenchmarks_IncorrectMethodsNotThrowMessage()
+        {
+            var publicNonBenchmarkMethod = typeof(CorrectType).GetMethod(nameof(CorrectType.PublicNonBenchmarkMethod));
+            var privateNonBenchmarkMethod = typeof(CorrectType).GetMethod("PrivateNonBenchmarkMethod", BindingFlags.NonPublic | BindingFlags.Instance);
+            var stringMethod = typeof(string).GetMethods().First(m => m.Name is nameof(string.Contains));
+
+            BenchmarkConverter.MethodsToBenchmarks(typeof(CorrectType), new[] { publicNonBenchmarkMethod });
+            BenchmarkConverter.MethodsToBenchmarks(typeof(CorrectType), new[] { privateNonBenchmarkMethod });
+            BenchmarkConverter.MethodsToBenchmarks(typeof(CorrectType), new[] { stringMethod });
+        }
+
+        [FactDotNetCoreOnly("Supported only on .NET Framework")]
+        public void UrlAndSourceAreNotSupportedInCore()
+        {
+            Assert.Throws<NotSupportedException>(() => BenchmarkConverter.UrlToBenchmarks(null, null));
+            Assert.Throws<NotSupportedException>(() => BenchmarkConverter.SourceToBenchmarks(null, null));
+        }
+
+        [TheoryFullFrameworkOnly("Supported only on .NET Framework")]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("  ")]
+        [InlineData("https://google.com/")]
+        [InlineData("https://github.com/")]
+        [InlineData("https://gist.github.com/")]
+        public void UrlToBenchmarks_IncorrectArgumentsThrowMessage(string url)
+        {
+            ThrowsMessage(() => BenchmarkConverter.UrlToBenchmarks(url));
+        }
+
+        [FactWindowsOnly("Supported only on .NET Framework")]
+        public void UrlToBenchmarks_RemoteGistHandledCorrectly()
+        {
+            //TODO: it's a randomly gist, replace for maintainer gist
+            var r = BenchmarkConverter.UrlToBenchmarks("https://gist.github.com/lillo42/aa028027af80623cdaf8056a1d9d0728");
+            Assert.NotEmpty(r[0].BenchmarksCases);
+        }
+
+        [TheoryWindowsOnly("Supported only on .NET Framework")]
+        [InlineData(null)]
+        [InlineData("")]
+        [InlineData("  ")]
+        public void SourceToBenchmarks_IncorrectArgumentsThrowMessage(string source)
+        {
+            ThrowsMessage(() => BenchmarkConverter.SourceToBenchmarks(source));
+        }
+
+        private static void ThrowsMessage(Action action) => Assert.Throws<InvalidBenchmarkDeclarationException>(action);
+
+        public class CorrectType
+        {
+            [Benchmark]
+            public void BenchmarkMethod() { }
+
+            public void PublicNonBenchmarkMethod() { }
+
+            [MethodImpl(MethodImplOptions.NoInlining), UsedImplicitly]
+            private void PrivateNonBenchmarkMethod() { }
+        }
+
+        [UsedImplicitly]
+        public class IncorrectType
+        {
+            [UsedImplicitly]
+            public void Method() { }
         }
     }
 }
