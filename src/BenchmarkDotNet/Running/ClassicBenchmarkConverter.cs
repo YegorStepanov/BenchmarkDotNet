@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Environments;
-using BenchmarkDotNet.Loggers;
+using BenchmarkDotNet.Extensions;
+using BenchmarkDotNet.Portability;
 using Microsoft.CSharp;
 
 namespace BenchmarkDotNet.Running
@@ -15,7 +15,11 @@ namespace BenchmarkDotNet.Running
     {
         public static BenchmarkRunInfo[] UrlToBenchmarks(string url, IConfig config = null)
         {
-            var logger = HostEnvironmentInfo.FallbackLogger;
+            if (!RuntimeInformation.IsFullFramework)
+                throw new NotSupportedException("Supported only on Full .NET Framework.");
+
+            if (string.IsNullOrWhiteSpace(url))
+                throw new InvalidBenchmarkDeclarationException("URL is empty.");
 
             url = GetRawUrl(url);
             string benchmarkContent;
@@ -26,32 +30,34 @@ namespace BenchmarkDotNet.Running
                 using (var content = response.GetResponseStream())
                 {
                     if (content == null)
-                    {
-                        logger.WriteLineError("ResponseStream == null");
-                        return Array.Empty<BenchmarkRunInfo>();
-                    }
+                        throw new InvalidBenchmarkDeclarationException("Response content is empty.");
+
                     using (var reader = new StreamReader(content))
                         benchmarkContent = reader.ReadToEnd();
+
                     if (string.IsNullOrWhiteSpace(benchmarkContent))
-                    {
-                        logger.WriteLineHint($"content of '{url}' is empty.");
-                        return Array.Empty<BenchmarkRunInfo>();
-                    }
+                        throw new InvalidBenchmarkDeclarationException($"Content of '{url}' is empty.");
                 }
             }
             catch (Exception e)
             {
-                logger.WriteLineError("BuildException: " + e.Message);
-                return Array.Empty<BenchmarkRunInfo>();
+                throw new InvalidBenchmarkDeclarationException(e.Message);
             }
             return SourceToBenchmarks(benchmarkContent, config);
         }
 
         public static BenchmarkRunInfo[] SourceToBenchmarks(string source, IConfig config = null)
         {
+            if (!RuntimeInformation.IsFullFramework)
+                throw new NotSupportedException("Supported only on Full .NET Framework.");
+
+            if (string.IsNullOrEmpty(source))
+                throw new InvalidBenchmarkDeclarationException("Source isn't provided.");
+
             string benchmarkContent = source;
             CompilerResults compilerResults;
-            using (var cSharpCodeProvider = new CSharpCodeProvider()) {
+            using (var cSharpCodeProvider = new CSharpCodeProvider())
+            {
                 string directoryName = Path.GetDirectoryName(typeof(BenchmarkCase).Assembly.Location)
                                        ?? throw new DirectoryNotFoundException(typeof(BenchmarkCase).Assembly.Location);
                 var compilerParameters = new CompilerParameters(
@@ -75,10 +81,8 @@ namespace BenchmarkDotNet.Running
 
             if (compilerResults.Errors.HasErrors)
             {
-                var logger = HostEnvironmentInfo.FallbackLogger;
-
-                compilerResults.Errors.Cast<CompilerError>().ToList().ForEach(error => logger.WriteLineError(error.ErrorText));
-                return Array.Empty<BenchmarkRunInfo>();
+                var message = string.Join("\n", compilerResults.Errors.Cast<CompilerError>().Select(error => error.ErrorText));
+                throw new InvalidBenchmarkDeclarationException(message);
             }
 
             var benchmarkTypes = compilerResults.CompiledAssembly.GetRunnableBenchmarks();

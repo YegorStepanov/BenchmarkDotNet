@@ -109,13 +109,13 @@ namespace BenchmarkDotNet.Running
         private static Summary RunUrlWithDirtyAssemblyResolveHelper(string url, IConfig config = null)
             => RuntimeInformation.IsFullFramework
                 ? BenchmarkRunnerClean.Run(BenchmarkConverter.UrlToBenchmarks(url, config)).Single()
-                : throw new NotSupportedException("Supported only on Full .NET Framework");
+                : throw new InvalidBenchmarkDeclarationException("Supported only on Full .NET Framework");
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static Summary RunSourceWithDirtyAssemblyResolveHelper(string source, IConfig config = null)
             => RuntimeInformation.IsFullFramework
                 ? BenchmarkRunnerClean.Run(BenchmarkConverter.SourceToBenchmarks(source, config)).Single()
-                : throw new NotSupportedException("Supported only on Full .NET Framework");
+                : throw new InvalidBenchmarkDeclarationException("Supported only on Full .NET Framework");
 
         private static Summary RunWithExceptionHandling(Func<Summary> run)
         {
