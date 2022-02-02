@@ -343,9 +343,9 @@ namespace BenchmarkDotNet.IntegrationTests
 
             public void PrintNoBenchmarksError(ILogger logger) => PrintNoBenchmarksErrorCalledTimes++;
 
-            public void PrintWrongFilterInfo(IReadOnlyList<Type> allTypes, ILogger logger, string[] userFilters) => PrintWrongFilterInfoCalledTimes++;
+            public void PrintWrongFilterInfo(IReadOnlyList<Type> allBenchmarkTypes, ILogger logger, string[] userFilters) => PrintWrongFilterInfoCalledTimes++;
 
-            public IReadOnlyList<Type> AskUser(IReadOnlyList<Type> allTypes, ILogger logger)
+            public IReadOnlyList<Type> AskUser(IReadOnlyList<Type> allBenchmarkTypes, ILogger logger)
             {
                 AskUserCalledTimes++;
 

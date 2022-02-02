@@ -23,14 +23,14 @@ namespace BenchmarkDotNet.Running
         }
 
         [NotNull]
-        public IReadOnlyList<Type> AskUser([NotNull] IReadOnlyList<Type> allTypes, ILogger logger)
+        public IReadOnlyList<Type> AskUser([NotNull] IReadOnlyList<Type> allBenchmarkTypes, ILogger logger)
         {
             var selectedTypes = new List<Type>();
-            string benchmarkCaptionExample = allTypes.First().GetDisplayName();
+            string benchmarkCaptionExample = allBenchmarkTypes.First().GetDisplayName();
 
             while (selectedTypes.Count == 0 && !consoleCancelKeyPressed)
             {
-                PrintAvailable(allTypes, logger);
+                PrintAvailable(allBenchmarkTypes, logger);
 
                 if (consoleCancelKeyPressed)
                     break;
@@ -46,16 +46,16 @@ namespace BenchmarkDotNet.Running
                     break;
                 }
 
-                selectedTypes.AddRange(GetMatching(allTypes, userInput.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)));
+                selectedTypes.AddRange(GetMatching(allBenchmarkTypes, userInput.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)));
                 logger.WriteLine();
             }
 
             return selectedTypes;
         }
 
-        public void PrintWrongFilterInfo(IReadOnlyList<Type> allTypes, ILogger logger, [NotNull] string[] userFilters)
+        public void PrintWrongFilterInfo(IReadOnlyList<Type> allBenchmarkTypes, ILogger logger, [NotNull] string[] userFilters)
         {
-            var correctionSuggester = new CorrectionsSuggester(allTypes);
+            var correctionSuggester = new CorrectionsSuggester(allBenchmarkTypes);
 
             var filterToNames = userFilters
                 .Select(userFilter => (userFilter: userFilter, suggestedBenchmarkNames: correctionSuggester.SuggestFor(userFilter)))
@@ -104,13 +104,13 @@ namespace BenchmarkDotNet.Running
             }
         }
 
-        private static void PrintAvailable([NotNull] IReadOnlyList<Type> allTypes, ILogger logger)
+        private static void PrintAvailable([NotNull] IReadOnlyList<Type> allBenchmarkTypes, ILogger logger)
         {
-            logger.WriteLineHelp($"Available Benchmark{(allTypes.Count > 1 ? "s" : "")}:");
+            logger.WriteLineHelp($"Available Benchmark{(allBenchmarkTypes.Count > 1 ? "s" : "")}:");
 
-            int numberWidth = allTypes.Count.ToString().Length;
-            for (int i = 0; i < allTypes.Count && !consoleCancelKeyPressed; i++)
-                logger.WriteLineHelp(string.Format(CultureInfo.InvariantCulture, "  #{0} {1}", i.ToString().PadRight(numberWidth), allTypes[i].GetDisplayName()));
+            int numberWidth = allBenchmarkTypes.Count.ToString().Length;
+            for (int i = 0; i < allBenchmarkTypes.Count && !consoleCancelKeyPressed; i++)
+                logger.WriteLineHelp(string.Format(CultureInfo.InvariantCulture, "  #{0} {1}", i.ToString().PadRight(numberWidth), allBenchmarkTypes[i].GetDisplayName()));
 
             if (!consoleCancelKeyPressed)
             {

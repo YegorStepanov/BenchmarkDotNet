@@ -15,9 +15,9 @@ namespace BenchmarkDotNet.ConsoleArguments
         private readonly HashSet<string> possibleBenchmarkNameFilters = new HashSet<string>();
         private readonly HashSet<string> actualFullBenchmarkNames = new HashSet<string>();
 
-        public CorrectionsSuggester(IReadOnlyList<Type> types)
+        public CorrectionsSuggester(IReadOnlyList<Type> benchmarkTypes)
         {
-            foreach (var benchmarkRunInfo in TypeFilter.Filter(DefaultConfig.Instance, types))
+            foreach (var benchmarkRunInfo in TypeFilter.Filter(DefaultConfig.Instance, benchmarkTypes))
             {
                 foreach (var benchmarkCase in benchmarkRunInfo.BenchmarksCases)
                 {
