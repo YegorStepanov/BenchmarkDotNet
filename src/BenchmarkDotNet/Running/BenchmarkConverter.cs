@@ -65,9 +65,7 @@ namespace BenchmarkDotNet.Running
                 throw new InvalidBenchmarkDeclarationException(
                     $"{type.Name} is generic type definition, use BenchmarkSwitcher for it"); // for "open generic types" should be used BenchmarkSwitcher
 
-            // We should check all methods including private to notify users about private methods with the [Benchmark] attribute
-            var bindingFlags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-            var benchmarkMethods = type.GetMethods(bindingFlags).Where(method => method.HasAttribute<BenchmarkAttribute>()).ToArray();
+            var benchmarkMethods = GetBenchmarkMethods(type);
 
             if (benchmarkMethods.IsNullOrEmpty())
                 throw new InvalidBenchmarkDeclarationException($"{type.Name} doesn't have methods with [Benchmark] attribute.");
@@ -76,7 +74,37 @@ namespace BenchmarkDotNet.Running
         }
 
         public static BenchmarkRunInfo MethodsToBenchmarks(Type containingType, MethodInfo[] benchmarkMethods, IConfig config = null)
-            => MethodsToBenchmarksWithFullConfig(containingType, benchmarkMethods, config);
+        {
+            if (containingType is null)
+                throw new InvalidBenchmarkDeclarationException("Containing type isn't provided.");
+
+            if (benchmarkMethods.IsNullOrEmpty())
+                throw new InvalidBenchmarkDeclarationException($"No methods provided for {containingType.Name}");
+
+            if (benchmarkMethods.Any(m => m is null))
+                throw new InvalidBenchmarkDeclarationException($"Null isn't allowed for benchmark methods.");
+
+            var containingBenchmarkMethods = GetBenchmarkMethods(containingType);
+
+            if (containingBenchmarkMethods.IsEmpty())
+                throw new InvalidBenchmarkDeclarationException($"{containingType} doesn't contain methods with [Benchmark] attribute.");
+
+            var wrongMethods = benchmarkMethods.Except(containingBenchmarkMethods).ToArray();
+
+            if (!wrongMethods.IsEmpty())
+                throw new InvalidBenchmarkDeclarationException(string.Join(", ", wrongMethods.Select(m => m.Name)) + 
+                                                               $" are not methods with [Benchmark] attribute of {containingType} type.");
+
+            return MethodsToBenchmarksWithFullConfig(containingType, benchmarkMethods, config);
+        }
+
+        private static MethodInfo[] GetBenchmarkMethods(Type type)
+        {
+            // We should check all methods including private to notify users about private methods with the [Benchmark] attribute
+            var bindingFlags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            var benchmarkMethods = type.GetMethods(bindingFlags).Where(method => method.HasAttribute<BenchmarkAttribute>()).ToArray();
+            return benchmarkMethods;
+        }
 
         private static BenchmarkRunInfo MethodsToBenchmarksWithFullConfig(Type type, MethodInfo[] benchmarkMethods, IConfig config)
         {
@@ -155,7 +183,6 @@ namespace BenchmarkDotNet.Running
             Tuple<MethodInfo, TargetedAttribute>[] iterationCleanupMethods)
         {
             return targetMethods
-                .Where(m => m.HasAttribute<BenchmarkAttribute>())
                 .Select(methodInfo => CreateDescriptor(type,
                                                    GetTargetedMatchingMethod(methodInfo, globalSetupMethods),
                                                    methodInfo,

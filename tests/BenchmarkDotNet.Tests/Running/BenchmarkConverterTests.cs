@@ -243,15 +243,15 @@ namespace BenchmarkDotNet.Tests.Running
         }
 
         [Fact]
-        public void MethodsToBenchmarks_IncorrectMethodsNotThrowMessage()
+        public void MethodsToBenchmarks_IncorrectMethodsThrowMessage()
         {
             var publicNonBenchmarkMethod = typeof(CorrectType).GetMethod(nameof(CorrectType.PublicNonBenchmarkMethod));
             var privateNonBenchmarkMethod = typeof(CorrectType).GetMethod("PrivateNonBenchmarkMethod", BindingFlags.NonPublic | BindingFlags.Instance);
             var stringMethod = typeof(string).GetMethods().First(m => m.Name is nameof(string.Contains));
 
-            BenchmarkConverter.MethodsToBenchmarks(typeof(CorrectType), new[] { publicNonBenchmarkMethod });
-            BenchmarkConverter.MethodsToBenchmarks(typeof(CorrectType), new[] { privateNonBenchmarkMethod });
-            BenchmarkConverter.MethodsToBenchmarks(typeof(CorrectType), new[] { stringMethod });
+            ThrowsMessage(() => BenchmarkConverter.MethodsToBenchmarks(typeof(CorrectType), new[] { publicNonBenchmarkMethod }));
+            ThrowsMessage(() => BenchmarkConverter.MethodsToBenchmarks(typeof(CorrectType), new[] { privateNonBenchmarkMethod }));
+            ThrowsMessage(() => BenchmarkConverter.MethodsToBenchmarks(typeof(CorrectType), new[] { stringMethod }));
         }
 
         [FactDotNetCoreOnly("Supported only on .NET Framework")]
