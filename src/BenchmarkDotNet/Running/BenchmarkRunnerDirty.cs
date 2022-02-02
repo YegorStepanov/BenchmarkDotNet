@@ -64,6 +64,9 @@ namespace BenchmarkDotNet.Running
                 return RunWithExceptionHandling(() => RunWithDirtyAssemblyResolveHelper(benchmarkRunInfos));
         }
 
+        /// <summary>
+        /// Supported only on Full .NET Framework. Not recommended.
+        /// </summary>
         [PublicAPI]
         public static Summary RunUrl(string url, IConfig config = null)
         {
@@ -71,6 +74,9 @@ namespace BenchmarkDotNet.Running
                 return RunWithExceptionHandling(() => RunUrlWithDirtyAssemblyResolveHelper(url, config));
         }
 
+        /// <summary>
+        /// Supported only on Full .NET Framework. Not recommended.
+        /// </summary>
         [PublicAPI]
         public static Summary RunSource(string source, IConfig config = null)
         {
