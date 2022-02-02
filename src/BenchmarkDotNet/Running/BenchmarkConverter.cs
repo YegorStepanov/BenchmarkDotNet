@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Code;
 using BenchmarkDotNet.Configs;
@@ -16,14 +17,59 @@ namespace BenchmarkDotNet.Running
 {
     public static partial class BenchmarkConverter
     {
+        public static BenchmarkRunInfo[] TypesToBenchmarks(Type[] types, IConfig config = null)
+        {
+            if (types.IsNullOrEmpty())
+                throw new InvalidBenchmarkDeclarationException("No types provided.");
+
+            var message = new StringBuilder();
+            var benchmarks = new List<BenchmarkRunInfo>();
+            foreach (var type in types)
+            {
+                try
+                {
+                    benchmarks.Add(TypeToBenchmarks(type, config));
+                }
+                catch (InvalidBenchmarkDeclarationException e)
+                {
+                    message.Append(e);
+                }
+            }
+
+            if (message.Length is not 0)
+                throw new InvalidBenchmarkDeclarationException(message.ToString());
+
+            return benchmarks.ToArray();
+        }
+
+        public static BenchmarkRunInfo[] AssemblyToBenchmarks(Assembly assembly, IConfig config = null)
+        {
+            if (assembly is null)
+                throw new InvalidBenchmarkDeclarationException("No assembly provided.");
+
+            var benchmarks = assembly.GetRunnableBenchmarks().Select(type => TypeToBenchmarks(type, config)).ToArray();
+
+            if (benchmarks.IsNullOrEmpty())
+                throw new InvalidBenchmarkDeclarationException(
+                    "No benchmarks to choose from. Make sure you provided public non-sealed non-static types with public [Benchmark] methods.");
+
+            return benchmarks;
+        }
+
         public static BenchmarkRunInfo TypeToBenchmarks(Type type, IConfig config = null)
         {
+            if (type is null)
+                throw new InvalidBenchmarkDeclarationException("No type provided.");
+
             if (type.IsGenericTypeDefinition)
                 throw new ArgumentException($"{type.Name} is generic type definition, use BenchmarkSwitcher for it"); // for "open generic types" should be used BenchmarkSwitcher
 
             // We should check all methods including private to notify users about private methods with the [Benchmark] attribute
             var bindingFlags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
             var benchmarkMethods = type.GetMethods(bindingFlags).Where(method => method.HasAttribute<BenchmarkAttribute>()).ToArray();
+
+            if (benchmarkMethods.IsNullOrEmpty())
+                throw new InvalidBenchmarkDeclarationException($"{type.Name} doesn't have methods with [Benchmark] attribute.");
 
             return MethodsToBenchmarksWithFullConfig(type, benchmarkMethods, config);
         }

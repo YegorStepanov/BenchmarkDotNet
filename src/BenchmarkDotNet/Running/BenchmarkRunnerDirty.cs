@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Configs;
-using BenchmarkDotNet.Extensions;
 using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Portability;
 using BenchmarkDotNet.Reports;
@@ -93,13 +92,13 @@ namespace BenchmarkDotNet.Running
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static Summary[] RunWithDirtyAssemblyResolveHelper(Assembly assembly, IConfig config, string[] args)
             => args == null
-                ? BenchmarkRunnerClean.Run(assembly.GetRunnableBenchmarks().Select(type => BenchmarkConverter.TypeToBenchmarks(type, config)).ToArray())
+                ? BenchmarkRunnerClean.Run(BenchmarkConverter.AssemblyToBenchmarks(assembly, config))
                 : new BenchmarkSwitcher(assembly).RunWithDirtyAssemblyResolveHelper(args, config, false).ToArray();
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static Summary[] RunWithDirtyAssemblyResolveHelper(Type[] types, IConfig config, string[] args)
             => args == null
-                ? BenchmarkRunnerClean.Run(types.Select(type => BenchmarkConverter.TypeToBenchmarks(type, config)).ToArray())
+                ? BenchmarkRunnerClean.Run(BenchmarkConverter.TypesToBenchmarks(types, config))
                 : new BenchmarkSwitcher(types).RunWithDirtyAssemblyResolveHelper(args, config, false).ToArray();
 
         [MethodImpl(MethodImplOptions.NoInlining)]
