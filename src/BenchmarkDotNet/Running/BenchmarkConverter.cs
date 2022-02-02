@@ -62,7 +62,8 @@ namespace BenchmarkDotNet.Running
                 throw new InvalidBenchmarkDeclarationException("No type provided.");
 
             if (type.IsGenericTypeDefinition)
-                throw new ArgumentException($"{type.Name} is generic type definition, use BenchmarkSwitcher for it"); // for "open generic types" should be used BenchmarkSwitcher
+                throw new InvalidBenchmarkDeclarationException(
+                    $"{type.Name} is generic type definition, use BenchmarkSwitcher for it"); // for "open generic types" should be used BenchmarkSwitcher
 
             // We should check all methods including private to notify users about private methods with the [Benchmark] attribute
             var bindingFlags = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
