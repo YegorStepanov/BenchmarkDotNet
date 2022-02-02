@@ -38,6 +38,8 @@ namespace BenchmarkDotNet.Running
         }
 
         internal static BenchmarkRunInfo[] Filter(IConfig effectiveConfig, IEnumerable<Type> benchmarkTypes)
-            => BenchmarkConverter.TypesToBenchmarks(benchmarkTypes.ToArray(), effectiveConfig);
+            => BenchmarkConverter.TypesToBenchmarks(benchmarkTypes.ToArray(), effectiveConfig)
+                .Where(info => info.BenchmarksCases.Any())
+                .ToArray();
     }
 }

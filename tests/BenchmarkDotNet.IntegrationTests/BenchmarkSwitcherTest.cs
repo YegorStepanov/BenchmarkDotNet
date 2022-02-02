@@ -82,7 +82,7 @@ namespace BenchmarkDotNet.IntegrationTests
         }
 
         [Fact]
-        public void WhenFilterReturnsNothingAnErrorMessageIsDisplayedAndNoBenchmarksAreExecuted()
+        public void WhenFilterReturnsNothingAnErrorMessageIsDisplayedAndNoBenchmarksAreExecuted() //
         {
             var logger = new OutputLogger(Output);
             var config = ManualConfig.CreateEmpty().AddLogger(logger);

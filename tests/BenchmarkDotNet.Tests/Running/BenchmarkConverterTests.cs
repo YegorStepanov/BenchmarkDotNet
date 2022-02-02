@@ -261,15 +261,6 @@ namespace BenchmarkDotNet.Tests.Running
             Assert.Throws<NotSupportedException>(() => BenchmarkConverter.SourceToBenchmarks(null, null));
         }
 
-        [TheoryFullFrameworkOnly("Supported only on .NET Framework")]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("  ")]
-        public void UrlToBenchmarks_IncorrectArgumentsThrowMessage(string url)
-        {
-            ThrowsMessage(() => BenchmarkConverter.UrlToBenchmarks(url));
-        }
-
         private static void ThrowsMessage(Action action) => Assert.Throws<InvalidBenchmarkDeclarationException>(action);
 
         public class CorrectType
