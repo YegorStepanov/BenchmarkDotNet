@@ -265,29 +265,9 @@ namespace BenchmarkDotNet.Tests.Running
         [InlineData(null)]
         [InlineData("")]
         [InlineData("  ")]
-        [InlineData("https://google.com/")]
-        [InlineData("https://github.com/")]
-        [InlineData("https://gist.github.com/")]
         public void UrlToBenchmarks_IncorrectArgumentsThrowMessage(string url)
         {
             ThrowsMessage(() => BenchmarkConverter.UrlToBenchmarks(url));
-        }
-
-        [FactWindowsOnly("Supported only on .NET Framework")]
-        public void UrlToBenchmarks_RemoteGistHandledCorrectly()
-        {
-            //TODO: it's a randomly gist, replace for maintainer gist
-            var r = BenchmarkConverter.UrlToBenchmarks("https://gist.github.com/lillo42/aa028027af80623cdaf8056a1d9d0728");
-            Assert.NotEmpty(r[0].BenchmarksCases);
-        }
-
-        [TheoryWindowsOnly("Supported only on .NET Framework")]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("  ")]
-        public void SourceToBenchmarks_IncorrectArgumentsThrowMessage(string source)
-        {
-            ThrowsMessage(() => BenchmarkConverter.SourceToBenchmarks(source));
         }
 
         private static void ThrowsMessage(Action action) => Assert.Throws<InvalidBenchmarkDeclarationException>(action);
