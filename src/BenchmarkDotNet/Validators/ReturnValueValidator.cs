@@ -60,7 +60,7 @@ namespace BenchmarkDotNet.Validators
             }
         }
 
-        private class ParameterInstancesEqualityComparer : IEqualityComparer<ParameterInstances>
+        private sealed class ParameterInstancesEqualityComparer : IEqualityComparer<ParameterInstances>
         {
             public static ParameterInstancesEqualityComparer Instance { get; } = new ParameterInstancesEqualityComparer();
 
@@ -98,7 +98,7 @@ namespace BenchmarkDotNet.Validators
             }
         }
 
-        private class InDepthEqualityComparer : IEqualityComparer
+        private sealed class InDepthEqualityComparer : IEqualityComparer
         {
             public static InDepthEqualityComparer Instance { get; } = new InDepthEqualityComparer();
 
@@ -142,22 +142,15 @@ namespace BenchmarkDotNet.Validators
 
                 return false;
 
-                Array ToStructuralEquatable(object obj)
+                static Array ToStructuralEquatable(object obj)
                 {
-                    switch (obj)
+                    return obj switch
                     {
-                        case Array array:
-                            return array;
-
-                        case IDictionary dict:
-                            return dict.Keys.Cast<object>().OrderBy(k => k).Select(k => (k, dict[k])).ToArray();
-
-                        case IEnumerable enumerable:
-                            return enumerable.Cast<object>().ToArray();
-
-                        default:
-                            return null;
-                    }
+                        Array array => array,
+                        IDictionary dict => dict.Keys.Cast<object>().OrderBy(k => k).Select(k => (k, dict[k])).ToArray(),
+                        IEnumerable enumerable => enumerable.Cast<object>().ToArray(),
+                        _ => null
+                    };
                 }
             }
 
