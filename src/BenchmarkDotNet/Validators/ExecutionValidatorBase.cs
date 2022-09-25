@@ -176,7 +176,7 @@ namespace BenchmarkDotNet.Validators
             return false;
         }
 
-        // https://stackoverflow.com/a/52500763
+// https://stackoverflow.com/a/52500763
         private static bool TryGetTaskResult(Task task, out object result)
         {
             result = null;
@@ -282,7 +282,10 @@ namespace BenchmarkDotNet.Validators
                     .Select(argument => argument.Value)
                     .ToArray();
 
-                var result = BenchmarkCase.Descriptor.WorkloadMethod.Invoke(Instance, arguments);
+                var result =
+                    arguments.IsEmpty()
+                        ? BenchmarkCase.Descriptor.WorkloadMethod.Invoke(Instance, null)
+                        : BenchmarkCase.Descriptor.WorkloadMethod.Invoke(Instance, arguments);
 
                 if (TryAwaitTask(result, out var taskResult))
                     result = taskResult;
