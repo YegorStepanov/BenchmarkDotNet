@@ -179,13 +179,12 @@ namespace BenchmarkDotNet.Validators
         // https://stackoverflow.com/a/52500763
         private static bool TryGetTaskResult(Task task, out object result)
         {
-            task.GetAwaiter().GetResult();
-
             result = null;
 
             var voidTaskType = typeof(Task<>).MakeGenericType(Type.GetType("System.Threading.Tasks.VoidTaskResult"));
             if (voidTaskType.IsInstanceOfType(task))
             {
+                task.GetAwaiter().GetResult();
                 return false;
             }
 
