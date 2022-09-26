@@ -592,7 +592,7 @@ namespace BenchmarkDotNet.Tests.Validators
         }
 
         [Fact]
-        public void AsyncGenericValueTaskGlobalSetupIsExecuted()
+        public void AsyncGenericValueTaskGlobalSetupIsExecuted() //!
         {
             var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(AsyncGenericValueTaskGlobalSetup))).ToList();
 

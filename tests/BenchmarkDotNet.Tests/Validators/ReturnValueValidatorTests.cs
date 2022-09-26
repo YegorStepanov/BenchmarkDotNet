@@ -316,7 +316,7 @@ namespace BenchmarkDotNet.Tests.Validators
         }
 
         [Fact]
-        public void AsyncSetupIsSupported()
+        public void AsyncSetupIsSupported() //!
             => AssertConsistent<AsyncSetupIsSupportedClass>();
 
         public class AsyncSetupIsSupportedClass
