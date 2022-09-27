@@ -39,19 +39,15 @@ namespace BenchmarkDotNet.Columns
 
         public bool IsAvailable(Summary summary)
         {
-            if (summary.IsMultipleRuntimes)
+            switch (ColumnName)
             {
-                if (nameof(Toolchains.Toolchain).Equals(ColumnName))
-                {
-                    return false;
-                }
-                if (nameof(Job).Equals(ColumnName))
-                {
+                case Column.Job:
                     return summary.BenchmarksCases.Any(x => x.Job.HasValue(CharacteristicObject.IdCharacteristic));
-                }
+                case Column.Toolchain:
+                    return summary.BenchmarksCases.Any(x => x.Job.HasValue(InfrastructureMode.ToolchainCharacteristic));
+                default:
+                    return true;
             }
-
-            return true;
         }
 
         public string GetValue(Summary summary, BenchmarkCase benchmarkCase)
