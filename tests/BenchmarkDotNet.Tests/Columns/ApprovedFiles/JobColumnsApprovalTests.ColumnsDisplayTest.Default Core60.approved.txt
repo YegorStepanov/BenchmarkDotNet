@@ -9,7 +9,7 @@ Frequency=2531248 Hz, Resolution=395.0620 ns, Timer=TSC
 
 Runtime=.NET 6.0  
 
- Method |        Job |     Mean | Error |
-------- |----------- |---------:|------:|
- Method | DefaultJob | 1.000 ns |    NA |
- Method | Job-rndId0 | 1.000 ns |    NA |
+ Method |     Mean | Error |
+------- |---------:|------:|
+ Method | 1.000 ns |    NA |
+ Method | 1.000 ns |    NA |

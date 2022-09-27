@@ -10,9 +10,9 @@ Frequency=2531248 Hz, Resolution=395.0620 ns, Timer=TSC
   Job-rndId2 : extra output line
 
 
- Method |            Runtime |     Mean | Error |
-------- |------------------- |---------:|------:|
- Method |           .NET 6.0 | 1.000 ns |    NA |
- Method |           .NET 6.0 | 1.000 ns |    NA |
- Method | .NET Framework 4.8 | 1.000 ns |    NA |
- Method |      NativeAOT 6.0 | 1.000 ns |    NA |
+ Method |            Runtime | Toolchain |     Mean | Error |
+------- |------------------- |---------- |---------:|------:|
+ Method |           .NET 6.0 |   Default | 1.000 ns |    NA |
+ Method |           .NET 6.0 |  .NET 6.0 | 1.000 ns |    NA |
+ Method | .NET Framework 4.8 |   Default | 1.000 ns |    NA |
+ Method |      NativeAOT 6.0 |   Default | 1.000 ns |    NA |
