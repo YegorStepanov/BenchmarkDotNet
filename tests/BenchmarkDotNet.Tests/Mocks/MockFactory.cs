@@ -32,33 +32,36 @@ namespace BenchmarkDotNet.Tests.Mocks
                 ImmutableArray<IColumnHidingRule>.Empty);
         }
 
-        public static Summary CreateSummary(IConfig config) => new Summary(
-                "MockSummary",
-                CreateReports(config),
-                new HostEnvironmentInfoBuilder().WithoutDotNetSdkVersion().Build(),
-                string.Empty,
-                string.Empty,
-                TimeSpan.FromMinutes(1),
-                config.CultureInfo,
-                ImmutableArray<ValidationError>.Empty,
-                ImmutableArray<IColumnHidingRule>.Empty);
+        public static Summary CreateSummary(IConfig config)
+            => CreateSummary<MockBenchmarkClass>(config);
+
+        public static Summary CreateSummary<TBenchmark>(IConfig config) => new Summary(
+            "MockSummary",
+            CreateReports<TBenchmark>(config),
+            new HostEnvironmentInfoBuilder().WithoutDotNetSdkVersion().Build(),
+            string.Empty,
+            string.Empty,
+            TimeSpan.FromMinutes(1),
+            config.CultureInfo,
+            ImmutableArray<ValidationError>.Empty,
+            ImmutableArray<IColumnHidingRule>.Empty);
 
         public static Summary CreateSummary(IConfig config, bool hugeSd, Metric[] metrics)
             => CreateSummary<MockBenchmarkClass>(config, hugeSd, metrics);
 
         public static Summary CreateSummary<TBenchmark>(IConfig config, bool hugeSd, Metric[] metrics) => new Summary(
-                "MockSummary",
-                CreateBenchmarks<TBenchmark>(config).Select(b => CreateReport(b, hugeSd, metrics)).ToImmutableArray(),
-                new HostEnvironmentInfoBuilder().Build(),
-                string.Empty,
-                string.Empty,
-                TimeSpan.FromMinutes(1),
-                TestCultureInfo.Instance,
-                ImmutableArray<ValidationError>.Empty,
-                ImmutableArray<IColumnHidingRule>.Empty);
+            "MockSummary",
+            CreateBenchmarks<TBenchmark>(config).Select(b => CreateReport(b, hugeSd, metrics)).ToImmutableArray(),
+            new HostEnvironmentInfoBuilder().Build(),
+            string.Empty,
+            string.Empty,
+            TimeSpan.FromMinutes(1),
+            TestCultureInfo.Instance,
+            ImmutableArray<ValidationError>.Empty,
+            ImmutableArray<IColumnHidingRule>.Empty);
 
-        private static ImmutableArray<BenchmarkReport> CreateReports(IConfig config)
-            => CreateBenchmarks<MockBenchmarkClass>(config).Select(CreateSimpleReport).ToImmutableArray();
+        private static ImmutableArray<BenchmarkReport> CreateReports<T>(IConfig config)
+            => CreateBenchmarks<T>(config).Select(CreateSimpleReport).ToImmutableArray();
 
         private static BenchmarkCase[] CreateBenchmarks<TBenchmarks>(IConfig config)
             => BenchmarkConverter.TypeToBenchmarks(typeof(TBenchmarks), config).BenchmarksCases;
