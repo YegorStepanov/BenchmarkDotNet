@@ -215,7 +215,7 @@ namespace BenchmarkDotNet.Tests.Validators
         }
 
         [Fact]
-        public void AsyncGenericValueTaskGlobalCleanupIsExecuted()
+        public void Wtf1()
         {
             testOutputHelper.WriteLine("YEGOR: AsyncGenericValueTaskGlobalCleanupIsExecuted" + $" {RuntimeInformation.GetRuntimeVersion()}");
 

@@ -20,7 +20,7 @@ namespace BenchmarkDotNet.Tests.Validators
         }
 
         [Fact]
-        public void AsyncSetupIsSupported() //!
+        public void Wtf2() //!
         {
             testOutputHelper.WriteLine("YEGOR: RETURN AsyncSetupIsSupported" + $" {RuntimeInformation.GetRuntimeVersion()}");
             AssertConsistent<AsyncSetupIsSupportedClass>();
