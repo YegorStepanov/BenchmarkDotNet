@@ -173,7 +173,7 @@ namespace BenchmarkDotNet.Validators
             return getResultMethod.ReturnType != typeof(void) || getResultMethod.ReturnType.Name != "VoidTaskResult";
         }
 
-// https://stackoverflow.com/a/52500763
+        // https://stackoverflow.com/a/52500763
         private static bool TryGetTaskResult(Task task, out object result)
         {
             result = null;

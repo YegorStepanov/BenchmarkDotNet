@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
@@ -8,6 +9,98 @@ using Xunit;
 
 namespace BenchmarkDotNet.Tests.Validators
 {
+    public class MyTests1
+    {
+        [Fact]
+        public void Method1()
+        {
+            var task = new TestClass1().Foo();
+            var isAsync = TryGetTaskResult(task, out var result);
+
+            Assert.True(isAsync);
+            Assert.Equal(1, result);
+        }
+
+        public class TestClass1
+        {
+            public async Task<int> Foo()
+            {
+                await Task.Delay(1);
+                return 1;
+            }
+        }
+
+        // https://stackoverflow.com/a/52500763
+        public static bool TryGetTaskResult(Task task, out object result)
+        {
+            result = null;
+
+            var voidTaskType = typeof(Task<>).MakeGenericType(Type.GetType("System.Threading.Tasks.VoidTaskResult"));
+            if (voidTaskType.IsInstanceOfType(task))
+            {
+                task.GetAwaiter().GetResult();
+                return false;
+            }
+
+            var property = task.GetType().GetProperty("Result", BindingFlags.Public | BindingFlags.Instance);
+            if (property is null)
+            {
+                return false;
+            }
+
+            result = property.GetValue(task);
+            return true;
+        }
+    }
+
+    public class MyTests2
+    {
+        [Fact]
+        public void Method2()
+        {
+            var task = new TestClass2().GlobalSetup();
+            var isAsync = MyTests1.TryGetTaskResult(task, out var result);
+
+            Assert.True(isAsync);
+            Assert.Equal(42, result);
+            Assert.True(TestClass2.WasCalled);
+        }
+
+        public class TestClass2
+        {
+            public static bool WasCalled;
+
+            public async Task<int> GlobalSetup()
+            {
+                await Task.Delay(1);
+                WasCalled = true;
+                return 42;
+            }
+        }
+
+        [Fact]
+        public void Method3()
+        {
+            var task = new TestClass3().GlobalCleanup();
+            var isAsync = MyTests1.TryGetTaskResult(task.AsTask(), out var result);
+
+            Assert.True(isAsync);
+            Assert.Null(result);
+            Assert.True(TestClass3.WasCalled);
+        }
+
+        public class TestClass3
+        {
+            public static bool WasCalled;
+
+            public async ValueTask GlobalCleanup()
+            {
+                await Task.Delay(1);
+                WasCalled = true;
+            }
+        }
+    }
+
     [Collection("Disable parallelism")]
     public class ExecutionValidatorTests
     {
