@@ -201,7 +201,7 @@ namespace BenchmarkDotNet.Tests.Validators
             public static bool WasCalled;
 
             [GlobalSetup]
-            public async ValueTask<int> GlobalSetup()
+            public async Task<int> GlobalSetup()
             {
                 await Task.Delay(1);
 
