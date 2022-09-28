@@ -10,7 +10,6 @@ using Xunit.Abstractions;
 
 namespace BenchmarkDotNet.Tests.Validators
 {
-    [Collection("Disable parallelism")]
     public class ReturnValueValidatorTests
     {
         private readonly ITestOutputHelper testOutputHelper;
