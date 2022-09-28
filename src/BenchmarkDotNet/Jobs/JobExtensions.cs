@@ -412,7 +412,7 @@ namespace BenchmarkDotNet.Jobs
                 && !job.HasValue(RunMode.InvocationCountCharacteristic)
                 && !job.HasValue(RunMode.UnrollFactorCharacteristic))
             {
-                return job.RunOncePerIteration();
+                return job.RunOncePerIteration(); //!
             }
 
             return job;
