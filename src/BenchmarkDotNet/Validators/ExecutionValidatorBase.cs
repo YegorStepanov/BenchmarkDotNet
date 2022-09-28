@@ -267,6 +267,8 @@ namespace BenchmarkDotNet.Validators
                 BenchmarkCase = benchmarkCase;
             }
 
+            private static readonly object Obj = new ();
+
             public object Invoke()
             {
                 var arguments = BenchmarkCase.Parameters.Items
@@ -274,15 +276,15 @@ namespace BenchmarkDotNet.Validators
                     .Select(argument => argument.Value)
                     .ToArray();
 
-                var result =
-                    arguments.IsEmpty()
-                        ? BenchmarkCase.Descriptor.WorkloadMethod.Invoke(Instance, null)
-                        : BenchmarkCase.Descriptor.WorkloadMethod.Invoke(Instance, arguments);
+                lock (Obj)
+                {
+                    var result = BenchmarkCase.Descriptor.WorkloadMethod.Invoke(Instance, arguments);
 
-                if (TryAwaitTask(result, out var taskResult))
-                    result = taskResult;
+                    if (TryAwaitTask(result, out var taskResult))
+                        result = taskResult;
 
-                return result;
+                    return result;
+                }
             }
         }
     }
