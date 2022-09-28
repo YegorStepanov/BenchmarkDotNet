@@ -44,7 +44,6 @@ namespace BenchmarkDotNet.Validators
                     executors.Add(new BenchmarkExecutor(benchmarkTypeInstance, benchmark));
                 }
 
-                Console.WriteLine("TryToCallGlobalSetup");
                 ExecuteBenchmarks(executors, errors);
 
                 foreach (var executor in executors)
