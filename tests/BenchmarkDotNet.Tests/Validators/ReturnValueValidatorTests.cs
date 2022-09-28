@@ -7,6 +7,7 @@ using Xunit;
 
 namespace BenchmarkDotNet.Tests.Validators
 {
+    [Collection("Disable parallelism")]
     public class ReturnValueValidatorTests
     {
         [Fact]
