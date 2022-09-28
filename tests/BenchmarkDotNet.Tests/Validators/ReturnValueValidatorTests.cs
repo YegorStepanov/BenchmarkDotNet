@@ -1,17 +1,30 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Portability;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Validators;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace BenchmarkDotNet.Tests.Validators
 {
     public class ReturnValueValidatorTests
     {
+        private readonly ITestOutputHelper testOutputHelper;
+
+        public ReturnValueValidatorTests(ITestOutputHelper testOutputHelper)
+        {
+            this.testOutputHelper = testOutputHelper;
+        }
+
         [Fact]
         public void AsyncSetupIsSupported() //!
-            => AssertConsistent<AsyncSetupIsSupportedClass>();
+        {
+            testOutputHelper.WriteLine("YEGOR: RETURN AsyncSetupIsSupported" + $" {RuntimeInformation.GetRuntimeVersion()}");
+            AssertConsistent<AsyncSetupIsSupportedClass>();
+        }
 
         public class AsyncSetupIsSupportedClass
         {
