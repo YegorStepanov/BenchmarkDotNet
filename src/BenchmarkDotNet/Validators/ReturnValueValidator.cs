@@ -18,41 +18,46 @@ namespace BenchmarkDotNet.Validators
         private ReturnValueValidator(bool failOnError)
             : base(failOnError) { }
 
+        private static readonly object Obj = new ();
+
         protected override void ExecuteBenchmarks(IEnumerable<BenchmarkExecutor> executors, List<ValidationError> errors)
         {
-            foreach (var parameterGroup in executors.GroupBy(i => i.BenchmarkCase.Parameters, ParameterInstancesEqualityComparer.Instance))
+            lock (Obj)
             {
-                var results = new List<(BenchmarkCase benchmark, object returnValue)>();
-                bool hasErrorsInGroup = false;
-
-                foreach (var executor in parameterGroup.DistinctBy(e => e.BenchmarkCase.Descriptor.WorkloadMethod))
+                foreach (var parameterGroup in executors.GroupBy(i => i.BenchmarkCase.Parameters, ParameterInstancesEqualityComparer.Instance))
                 {
-                    try
-                    {
-                        var result = executor.Invoke();
+                    var results = new List<(BenchmarkCase benchmark, object returnValue)>();
+                    bool hasErrorsInGroup = false;
 
-                        if (executor.BenchmarkCase.Descriptor.WorkloadMethod.ReturnType != typeof(void))
-                            results.Add((executor.BenchmarkCase, result));
+                    foreach (var executor in parameterGroup.DistinctBy(e => e.BenchmarkCase.Descriptor.WorkloadMethod))
+                    {
+                        try
+                        {
+                            var result = executor.Invoke();
+
+                            if (executor.BenchmarkCase.Descriptor.WorkloadMethod.ReturnType != typeof(void))
+                                results.Add((executor.BenchmarkCase, result));
+                        }
+                        catch (Exception ex)
+                        {
+                            hasErrorsInGroup = true;
+
+                            errors.Add(new ValidationError(
+                                TreatsWarningsAsErrors,
+                                $"Failed to execute benchmark '{executor.BenchmarkCase.DisplayInfo}', exception was: '{GetDisplayExceptionMessage(ex)}'",
+                                executor.BenchmarkCase));
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        hasErrorsInGroup = true;
 
+                    if (hasErrorsInGroup || results.Count == 0)
+                        continue;
+
+                    if (results.Any(result => !InDepthEqualityComparer.Instance.Equals(result.returnValue, results[0].returnValue)))
+                    {
                         errors.Add(new ValidationError(
                             TreatsWarningsAsErrors,
-                            $"Failed to execute benchmark '{executor.BenchmarkCase.DisplayInfo}', exception was: '{GetDisplayExceptionMessage(ex)}'",
-                            executor.BenchmarkCase));
+                            $"Inconsistent benchmark return values in {results[0].benchmark.Descriptor.TypeInfo}: {string.Join(", ", results.Select(r => $"{r.benchmark.Descriptor.WorkloadMethodDisplayInfo}: {r.returnValue}"))} {parameterGroup.Key.DisplayInfo}"));
                     }
-                }
-
-                if (hasErrorsInGroup || results.Count == 0)
-                    continue;
-
-                if (results.Any(result => !InDepthEqualityComparer.Instance.Equals(result.returnValue, results[0].returnValue)))
-                {
-                    errors.Add(new ValidationError(
-                        TreatsWarningsAsErrors,
-                        $"Inconsistent benchmark return values in {results[0].benchmark.Descriptor.TypeInfo}: {string.Join(", ", results.Select(r => $"{r.benchmark.Descriptor.WorkloadMethodDisplayInfo}: {r.returnValue}"))} {parameterGroup.Key.DisplayInfo}"));
                 }
             }
         }
