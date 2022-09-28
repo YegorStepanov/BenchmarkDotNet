@@ -11,20 +11,25 @@ namespace BenchmarkDotNet.Validators
         private ExecutionValidator(bool failOnError)
             : base(failOnError) { }
 
+        private static readonly object Obj = new ();
+
         protected override void ExecuteBenchmarks(IEnumerable<BenchmarkExecutor> executors, List<ValidationError> errors)
         {
-            foreach (var executor in executors)
+            lock (Obj)
             {
-                try
+                foreach (var executor in executors)
                 {
-                    executor.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    errors.Add(new ValidationError(
-                        TreatsWarningsAsErrors,
-                        $"Failed to execute benchmark '{executor.BenchmarkCase.DisplayInfo}', exception was: '{GetDisplayExceptionMessage(ex)}'",
-                        executor.BenchmarkCase));
+                    try
+                    {
+                        executor.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        errors.Add(new ValidationError(
+                            TreatsWarningsAsErrors,
+                            $"Failed to execute benchmark '{executor.BenchmarkCase.DisplayInfo}', exception was: '{GetDisplayExceptionMessage(ex)}'",
+                            executor.BenchmarkCase));
+                    }
                 }
             }
         }
