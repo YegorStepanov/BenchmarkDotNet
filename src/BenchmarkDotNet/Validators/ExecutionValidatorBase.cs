@@ -156,7 +156,7 @@ namespace BenchmarkDotNet.Validators
                 return false;
             }
 
-            var getResultMethod = AwaitHelper.GetGetResultMethod(result.GetType());
+            var getResultMethod = AwaitHelper.GetGetResultMethod(task.GetType());
 
             if (getResultMethod is null)
             {
@@ -165,7 +165,7 @@ namespace BenchmarkDotNet.Validators
 
             result = getResultMethod.Invoke(null, new[] { task });
 
-            return getResultMethod.ReturnType != typeof(void);
+            return getResultMethod.ReturnType != typeof(void) || getResultMethod.ReturnType.Name != "VoidTaskResult";
         }
 
 // https://stackoverflow.com/a/52500763
