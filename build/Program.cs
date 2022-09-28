@@ -312,7 +312,7 @@ public class FastTestsTask : FrostingTask<BuildContext>
     public override void Run(BuildContext context)
     {
         var targetFrameworks = context.IsRunningOnWindows()
-            ? new[] { "net461", "net6.0" }
+            ? new[] { "net480", "net6.0" }
             : new[] { "net6.0" };
 
         foreach (var targetFramework in targetFrameworks) 
@@ -331,7 +331,7 @@ public class SlowTestsNet461Task : FrostingTask<BuildContext>
 
     public override void Run(BuildContext context)
     {
-        context.RunTests(context.IntegrationTestsProjectFile, "IntegrationTests", "net461");
+        context.RunTests(context.IntegrationTestsProjectFile, "IntegrationTests", "net480");
     }
 }
 
