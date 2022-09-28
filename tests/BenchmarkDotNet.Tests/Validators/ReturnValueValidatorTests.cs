@@ -22,11 +22,11 @@ namespace BenchmarkDotNet.Tests.Validators
         [Fact]
         public void Wtf2() //!
         {
-            testOutputHelper.WriteLine("YEGOR: RETURN AsyncSetupIsSupported" + $" {RuntimeInformation.GetRuntimeVersion()}");
-            AssertConsistent<AsyncSetupIsSupportedClass>();
+            testOutputHelper.WriteLine("YEGOR: RETURN Wtf2" + $" {RuntimeInformation.GetRuntimeVersion()}");
+            AssertConsistent<Wtf2Class>();
         }
 
-        public class AsyncSetupIsSupportedClass
+        public class Wtf2Class
         {
             [Benchmark]
             public async Task<int> Foo()

@@ -217,20 +217,20 @@ namespace BenchmarkDotNet.Tests.Validators
         [Fact]
         public void Wtf1()
         {
-            testOutputHelper.WriteLine("YEGOR: AsyncGenericValueTaskGlobalCleanupIsExecuted" + $" {RuntimeInformation.GetRuntimeVersion()}");
+            testOutputHelper.WriteLine("YEGOR: Wtf1" + $" {RuntimeInformation.GetRuntimeVersion()}");
 
-            var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(AsyncGenericValueTaskGlobalCleanup))).ToList();
+            var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(Wtf1Class))).ToList();
 
-            Assert.True(AsyncGenericValueTaskGlobalCleanup.WasCalled);
+            Assert.True(Wtf1Class.WasCalled);
             Assert.Empty(validationErrors);
         }
 
-        public class AsyncGenericValueTaskGlobalCleanup
+        public class Wtf1Class
         {
             public static bool WasCalled;
 
             [GlobalCleanup]
-            public async ValueTask<int> GlobalCleanup()
+            public async Task<int> GlobalCleanup() //ValueTask<int>
             {
                 await Task.Delay(1);
 
