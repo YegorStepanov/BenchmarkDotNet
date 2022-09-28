@@ -97,7 +97,7 @@ namespace BenchmarkDotNet.Disassemblers
             // the disassembler has not been yet retrieved from the resources
             CopyFromResources(
                 assemblyWithDisassemblersInResources,
-                $"BenchmarkDotNet.Disassemblers.net462.win7_{architectureName}.{exeName}",
+                $"BenchmarkDotNet.Disassemblers.net480.win7_{architectureName}.{exeName}",
                 disassemblerPath);
 
             CopyAllRequiredDependencies(assemblyWithDisassemblersInResources, Path.GetDirectoryName(disassemblerPath));
@@ -111,7 +111,7 @@ namespace BenchmarkDotNet.Disassemblers
             foreach (string dependency in assemblyWithDisassemblersInResources.GetManifestResourceNames().Where(name => name.EndsWith(".dll")))
             {
                 // dependency is sth like "BenchmarkDotNet.Disassemblers.net462.win7_x64.Microsoft.Diagnostics.Runtime.dll"
-                string fileName = dependency.Replace("BenchmarkDotNet.Disassemblers.net462.win7_x64.", string.Empty);
+                string fileName = dependency.Replace("BenchmarkDotNet.Disassemblers.net480.win7_x64.", string.Empty);
                 string dllPath = Path.Combine(destinationFolder, fileName);
 
                 if (!File.Exists(dllPath))

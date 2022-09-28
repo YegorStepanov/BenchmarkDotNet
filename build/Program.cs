@@ -320,9 +320,9 @@ public class FastTestsTask : FrostingTask<BuildContext>
     }
 }
 
-[TaskName("SlowTestsNet461")]
+[TaskName("SlowTestsNet480")]
 [IsDependentOn(typeof(BuildTask))]
-public class SlowTestsNet461Task : FrostingTask<BuildContext>
+public class SlowTestsNet480Task : FrostingTask<BuildContext>
 {
     public override bool ShouldRun(BuildContext context)
     {
@@ -352,7 +352,7 @@ public class SlowTestsNet5Task : FrostingTask<BuildContext>
 
 [TaskName("AllTests")]
 [IsDependentOn(typeof(FastTestsTask))]
-[IsDependentOn(typeof(SlowTestsNet461Task))]
+[IsDependentOn(typeof(SlowTestsNet480Task))]
 [IsDependentOn(typeof(SlowTestsNet5Task))]
 public class AllTestsTask : FrostingTask<BuildContext>
 {
