@@ -19,12 +19,12 @@ namespace BenchmarkDotNet.Tests.Validators
             this.testOutputHelper = testOutputHelper;
         }
 
-        [Fact]
-        public void Wtf2() //!
-        {
-            testOutputHelper.WriteLine("YEGOR: RETURN Wtf2" + $" {RuntimeInformation.GetRuntimeVersion()}");
-            AssertConsistent<Wtf2Class>();
-        }
+        // [Fact]
+        // public void Wtf2() //!
+        // {
+        //     testOutputHelper.WriteLine("YEGOR: RETURN Wtf2" + $" {RuntimeInformation.GetRuntimeVersion()}");
+        //     AssertConsistent<Wtf2Class>();
+        // }
 
         public class Wtf2Class
         {
