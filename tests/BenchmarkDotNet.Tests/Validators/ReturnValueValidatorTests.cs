@@ -1,28 +1,17 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Portability;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Validators;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace BenchmarkDotNet.Tests.Validators
 {
     public class ReturnValueValidatorTests
     {
-        private readonly ITestOutputHelper testOutputHelper;
-
-        public ReturnValueValidatorTests(ITestOutputHelper testOutputHelper)
-        {
-            this.testOutputHelper = testOutputHelper;
-        }
-
         [Fact]
         public void Wtf2() //!
         {
-            testOutputHelper.WriteLine("YEGOR: RETURN Wtf2" + $" {RuntimeInformation.GetRuntimeVersion()}");
             AssertConsistent<Wtf2Class>();
         }
 

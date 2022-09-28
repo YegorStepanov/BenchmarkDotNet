@@ -2,28 +2,17 @@
 using System.Linq;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Portability;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Validators;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace BenchmarkDotNet.Tests.Validators
 {
     public class ExecutionValidatorTests
     {
-        private readonly ITestOutputHelper testOutputHelper;
-
-        public ExecutionValidatorTests(ITestOutputHelper testOutputHelper)
-        {
-            this.testOutputHelper = testOutputHelper;
-        }
-
         [Fact]
         public void AsyncTaskGlobalSetupIsExecuted()
         {
-            testOutputHelper.WriteLine("YEGOR: AsyncTaskGlobalSetupIsExecuted" + $" {RuntimeInformation.GetRuntimeVersion()}");
-
             var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(AsyncTaskGlobalSetup))).ToList();
 
             Assert.True(AsyncTaskGlobalSetup.WasCalled);
@@ -49,8 +38,6 @@ namespace BenchmarkDotNet.Tests.Validators
         [Fact]
         public void AsyncTaskGlobalCleanupIsExecuted()
         {
-            testOutputHelper.WriteLine("YEGOR: AsyncTaskGlobalCleanupIsExecuted" + $" {RuntimeInformation.GetRuntimeVersion()}");
-
             var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(AsyncTaskGlobalCleanup))).ToList();
 
             Assert.True(AsyncTaskGlobalCleanup.WasCalled);
@@ -76,8 +63,6 @@ namespace BenchmarkDotNet.Tests.Validators
         [Fact]
         public void AsyncGenericTaskGlobalSetupIsExecuted()
         {
-            testOutputHelper.WriteLine("YEGOR: AsyncGenericTaskGlobalSetupIsExecuted" + $" {RuntimeInformation.GetRuntimeVersion()}");
-
             var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(AsyncGenericTaskGlobalSetup))).ToList();
 
             Assert.True(AsyncGenericTaskGlobalSetup.WasCalled);
@@ -105,8 +90,6 @@ namespace BenchmarkDotNet.Tests.Validators
         [Fact]
         public void AsyncGenericTaskGlobalCleanupIsExecuted()
         {
-            testOutputHelper.WriteLine("YEGOR: AsyncGenericTaskGlobalCleanupIsExecuted" + $" {RuntimeInformation.GetRuntimeVersion()}");
-
             var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(AsyncGenericTaskGlobalCleanup))).ToList();
 
             Assert.True(AsyncGenericTaskGlobalCleanup.WasCalled);
@@ -134,8 +117,6 @@ namespace BenchmarkDotNet.Tests.Validators
         [Fact]
         public void AsyncValueTaskGlobalSetupIsExecuted()
         {
-            testOutputHelper.WriteLine("YEGOR: AsyncValueTaskGlobalSetupIsExecuted" + $" {RuntimeInformation.GetRuntimeVersion()}");
-
             var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(AsyncValueTaskGlobalSetup))).ToList();
 
             Assert.True(AsyncValueTaskGlobalSetup.WasCalled);
@@ -161,8 +142,6 @@ namespace BenchmarkDotNet.Tests.Validators
         [Fact]
         public void AsyncValueTaskGlobalCleanupIsExecuted()
         {
-            testOutputHelper.WriteLine("YEGOR: AsyncValueTaskGlobalCleanupIsExecuted" + $" {RuntimeInformation.GetRuntimeVersion()}");
-
             var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(AsyncValueTaskGlobalCleanup))).ToList();
 
             Assert.True(AsyncValueTaskGlobalCleanup.WasCalled);
@@ -188,8 +167,6 @@ namespace BenchmarkDotNet.Tests.Validators
         [Fact]
         public void AsyncGenericValueTaskGlobalSetupIsExecuted() //!
         {
-            testOutputHelper.WriteLine("YEGOR: AsyncGenericValueTaskGlobalSetupIsExecuted" + $" {RuntimeInformation.GetRuntimeVersion()}");
-
             var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(AsyncGenericValueTaskGlobalSetup))).ToList();
 
             Assert.True(AsyncGenericValueTaskGlobalSetup.WasCalled);
@@ -217,8 +194,6 @@ namespace BenchmarkDotNet.Tests.Validators
         [Fact]
         public void Wtf1()
         {
-            testOutputHelper.WriteLine("YEGOR: Wtf1" + $" {RuntimeInformation.GetRuntimeVersion()}");
-
             var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(Wtf1Class))).ToList();
 
             Assert.True(Wtf1Class.WasCalled);
@@ -246,8 +221,6 @@ namespace BenchmarkDotNet.Tests.Validators
         [Fact]
         public void AsyncIterationSetupIsNotAllowed()
         {
-            testOutputHelper.WriteLine("YEGOR: AsyncIterationSetupIsNotAllowed" + $" {RuntimeInformation.GetRuntimeVersion()}");
-
             var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(AsyncIterationSetupIsNotAllowedClass))).ToList();
 
             Assert.NotEmpty(validationErrors);
@@ -266,8 +239,6 @@ namespace BenchmarkDotNet.Tests.Validators
         [Fact]
         public void AsyncIterationCleanupIsNotAllowed()
         {
-            testOutputHelper.WriteLine("YEGOR: AsyncIterationCleanupIsNotAllowed" + $" {RuntimeInformation.GetRuntimeVersion()}");
-
             var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(AsyncIterationCleanupIsNotAllowedClass))).ToList();
 
             Assert.NotEmpty(validationErrors);
@@ -286,8 +257,6 @@ namespace BenchmarkDotNet.Tests.Validators
         [Fact]
         public void SetupsWithCleanupsAreCalledInCorrectOrder()
         {
-            testOutputHelper.WriteLine("YEGOR: SetupsWithCleanupsAreCalledInCorrectOrder" + $" {RuntimeInformation.GetRuntimeVersion()}");
-
             var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(SetupsAndCleanups))).ToList();
 
             Assert.True(SetupsAndCleanups.GlobalSetupIsCalled);
@@ -351,8 +320,6 @@ namespace BenchmarkDotNet.Tests.Validators
         [Fact]
         public void AsyncSetupsWithCleanupsAreCalledInCorrectOrder()
         {
-            testOutputHelper.WriteLine("YEGOR: AsyncSetupsWithCleanupsAreCalledInCorrectOrder" + $" {RuntimeInformation.GetRuntimeVersion()}");
-
             var validationErrors = ExecutionValidator.FailOnError.Validate(BenchmarkConverter.TypeToBenchmarks(typeof(AsyncSetupsAndCleanups))).ToList();
 
             Assert.True(AsyncSetupsAndCleanups.AsyncGlobalSetupIsCalled);
