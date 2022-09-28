@@ -20,39 +20,44 @@ namespace BenchmarkDotNet.Validators
 
         public bool TreatsWarningsAsErrors { get; }
 
+        private static readonly object Obj = new ();
+
         public IEnumerable<ValidationError> Validate(ValidationParameters validationParameters)
         {
             var errors = new List<ValidationError>();
 
-            foreach (var typeGroup in validationParameters.Benchmarks.GroupBy(benchmark => benchmark.Descriptor.Type))
+            lock (Obj)
             {
-                var executors = new List<BenchmarkExecutor>();
-
-                foreach (var benchmark in typeGroup)
+                foreach (var typeGroup in validationParameters.Benchmarks.GroupBy(benchmark => benchmark.Descriptor.Type))
                 {
-                    if (!TryCreateBenchmarkTypeInstance(typeGroup.Key, errors, out var benchmarkTypeInstance))
-                        continue;
+                    var executors = new List<BenchmarkExecutor>();
 
-                    if (!TryToFillParameters(benchmark, benchmarkTypeInstance, errors))
-                        continue;
+                    foreach (var benchmark in typeGroup)
+                    {
+                        if (!TryCreateBenchmarkTypeInstance(typeGroup.Key, errors, out var benchmarkTypeInstance))
+                            continue;
 
-                    if (!TryToCallGlobalSetup(benchmarkTypeInstance, errors))
-                        continue;
+                        if (!TryToFillParameters(benchmark, benchmarkTypeInstance, errors))
+                            continue;
 
-                    if (!TryToCallIterationSetup(benchmarkTypeInstance, errors))
-                        continue;
+                        if (!TryToCallGlobalSetup(benchmarkTypeInstance, errors))
+                            continue;
 
-                    executors.Add(new BenchmarkExecutor(benchmarkTypeInstance, benchmark));
-                }
+                        if (!TryToCallIterationSetup(benchmarkTypeInstance, errors))
+                            continue;
 
-                ExecuteBenchmarks(executors, errors);
+                        executors.Add(new BenchmarkExecutor(benchmarkTypeInstance, benchmark));
+                    }
 
-                foreach (var executor in executors)
-                {
-                    if (!TryToCallIterationCleanup(executor.Instance, errors))
-                        continue;
+                    ExecuteBenchmarks(executors, errors);
 
-                    TryToCallGlobalCleanup(executor.Instance, errors);
+                    foreach (var executor in executors)
+                    {
+                        if (!TryToCallIterationCleanup(executor.Instance, errors))
+                            continue;
+
+                        TryToCallGlobalCleanup(executor.Instance, errors);
+                    }
                 }
             }
 
@@ -267,8 +272,6 @@ namespace BenchmarkDotNet.Validators
                 BenchmarkCase = benchmarkCase;
             }
 
-            private static readonly object Obj = new ();
-
             public object Invoke()
             {
                 var arguments = BenchmarkCase.Parameters.Items
@@ -276,15 +279,12 @@ namespace BenchmarkDotNet.Validators
                     .Select(argument => argument.Value)
                     .ToArray();
 
-                lock (Obj)
-                {
-                    var result = BenchmarkCase.Descriptor.WorkloadMethod.Invoke(Instance, arguments);
+                var result = BenchmarkCase.Descriptor.WorkloadMethod.Invoke(Instance, arguments);
 
-                    if (TryAwaitTask(result, out var taskResult))
-                        result = taskResult;
+                if (TryAwaitTask(result, out var taskResult))
+                    result = taskResult;
 
-                    return result;
-                }
+                return result;
             }
         }
     }
