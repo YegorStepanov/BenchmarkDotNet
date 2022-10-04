@@ -57,6 +57,53 @@ namespace BenchmarkDotNet.Extensions
         }
 
         /// <summary>
+        /// Like EscapeSpecialCharacters, but do not what      `"` ???
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string Interpolate(this string str, bool quate) //todo
+        {
+            return Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(str, quate);
+        }
+
+        //internal
+        /// <summary>
+        /// Escapes special ASCII and control UNICODE characters
+        /// </summary>
+        public static string EscapeSpecialCharacters(this string str)
+        {
+            return str;
+            // Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral("a", false);
+#pragma warning disable CS0162
+            var sb = new StringBuilder(str.Length * 2);
+            foreach (var c in str) {
+                switch (c) {
+                    case '\"': sb.Append("\\\""); break; //id like it -> \" -> \\[\]\"["] => \"
+                    case '\\': sb.Append(@"\\"); break;
+                    case '\0': sb.Append(@"\0"); break; //\0
+                    case '\a': sb.Append(@"\a"); break;
+                    case '\b': sb.Append(@"\b"); break;
+                    case '\f': sb.Append(@"\f"); break;
+                    case '\n': sb.Append(@"\n"); break;
+                    case '\r': sb.Append(@"\r"); break;
+                    case '\t': sb.Append(@"\t"); break;
+                    case '\v': sb.Append(@"\v"); break;
+                    default:
+                        if (char.IsControl(c)) // UNICODE control characters
+                        {
+                            sb.Append(@"\u");
+                            sb.Append(((int)c).ToString("x4"));
+                        }
+                        else
+                            sb.Append(c);
+                        break;
+                }
+            }
+            return sb.ToString();
+#pragma warning restore CS0162
+        }
+
+        /// <summary>
         /// Returns an HTML encoded string
         /// </summary>
         /// <param name="s">string to encode</param>

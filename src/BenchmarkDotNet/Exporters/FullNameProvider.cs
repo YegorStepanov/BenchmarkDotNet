@@ -137,13 +137,14 @@ namespace BenchmarkDotNet.Exporters
                 case null:
                     return "null";
                 case IParam iparam:
-                    return GetArgument(iparam.Value, argumentType);
+                    return GetArgument(iparam.Value, argumentType); //!
                 case object[] array when array.Length == 1:
-                    return GetArgument(array[0], argumentType);
+                    return GetArgument(array[0], argumentType); //!
                 case string text:
+                    // return $"\"{text.EscapeSpecialCharacters()}\"";
                     return $"\"{EscapeWhitespaces(text)}\"";
                 case char character:
-                    return $"'{character}'";
+                    return $"'{character}'"; //???
                 case DateTime time:
                     return time.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffffffK");
                 case Type type:
@@ -183,6 +184,7 @@ namespace BenchmarkDotNet.Exporters
             return buffer.ToString();
         }
 
+        //
         private static string EscapeWhitespaces(string text)
             => text.Replace("\t", "\\t")
                    .Replace("\r\n", "\\r\\n");
