@@ -140,6 +140,26 @@ namespace BenchmarkDotNet.IntegrationTests
         }
 
         [Fact]
+        public void SpecialCharactersMustBeEscapedProperly() => CanExecute<NeedEscaping>();
+
+        public class SpecialCharacters
+        {
+            [Params("\0", "\t", "\n", "\n\n\n", "\n \t \n", "\\", @"""", "\u0061", "\x0061", "\x61")]
+            public string Field;
+
+            [Params("C:\files.txt")]
+            public string Field2;
+
+            public void Benchmark()
+            {
+                if (!char.IsControl(Field[0]))
+                {
+                    throw new InvalidOperationException("Wring character escaping!");
+                }
+            }
+        }
+
+        [Fact]
         public void ParamsMustBeEscapedProperly() => CanExecute<NeedEscaping>();
 
         public class NeedEscaping
