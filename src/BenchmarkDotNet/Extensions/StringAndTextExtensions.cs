@@ -75,7 +75,7 @@ namespace BenchmarkDotNet.Extensions
         {
             var escaped = Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(str, quote);
             // FormatLiteral escapes all ASCII special and UNICODE control characters except the double quote
-            return escaped.Replace("\"", "\\\"");
+            return escaped; //.Replace("\"", "\\\"");
         }
 
         /// <summary>
