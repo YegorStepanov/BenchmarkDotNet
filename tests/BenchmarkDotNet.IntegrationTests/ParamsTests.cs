@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BenchmarkDotNet.Attributes;
 using Xunit;
 using Xunit.Abstractions;
@@ -137,6 +138,24 @@ namespace BenchmarkDotNet.IntegrationTests
 
             [Benchmark]
             public void Benchmark() => Console.WriteLine("// " + Field);
+        }
+
+        [Fact]
+        public void SpecialCharactersInStringAreSupported() => CanExecute<CompileSpecialCharactersInString>();
+
+        public class CompileSpecialCharactersInString
+        {
+            [Params("\t", "\n", "\\", "\"", "\u0061")]
+            public string OneCharacter;
+
+            [Params("C:\\files.txt")]
+            public string Path;
+
+            [Params("\n \t \n")]
+            public string Combo;
+
+            [Benchmark]
+            public void Benchmark() { }
         }
 
         [Fact]

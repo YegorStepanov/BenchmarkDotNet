@@ -57,6 +57,16 @@ namespace BenchmarkDotNet.Extensions
         }
 
         /// <summary>
+        /// Escapes special ASCII and control UNICODE characters
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        internal static string EscapeSpecialCharacters(this string str)
+        {
+            return Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(str, false);
+        }
+
+        /// <summary>
         /// Returns an HTML encoded string
         /// </summary>
         /// <param name="s">string to encode</param>
