@@ -57,13 +57,25 @@ namespace BenchmarkDotNet.Extensions
         }
 
         /// <summary>
-        /// Escapes special ASCII and control UNICODE characters
+        /// Returns an escaped string
         /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
-        internal static string EscapeSpecialCharacters(this string str)
+        /// <param name="c">char to escape</param>
+        /// <param name="quote">True to put (single) quotes around the character literal</param>
+        internal static string EscapeSpecialCharacter(this char c, bool quote)
         {
-            return Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(str, false);
+            return Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(c, quote);
+        }
+
+        /// <summary>
+        /// Returns an escaped string
+        /// </summary>
+        /// <param name="str">string to escape</param>
+        /// <param name="quote">True to put (double) quotes around the string literal</param>
+        internal static string EscapeSpecialCharacters(this string str, bool quote)
+        {
+            var escaped = Microsoft.CodeAnalysis.CSharp.SymbolDisplay.FormatLiteral(str, quote);
+            // FormatLiteral escapes all ASCII special and UNICODE control characters except the double quote
+            return escaped.Replace("\"", "\\\"");
         }
 
         /// <summary>

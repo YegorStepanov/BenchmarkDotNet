@@ -145,14 +145,28 @@ namespace BenchmarkDotNet.IntegrationTests
 
         public class CompileSpecialCharactersInString
         {
-            [Params("\t", "\n", "\\", "\"", "\u0061")]
+            //split and rename
+            [Params("\0", "\t", "\n", "\\", "\"", "\u0061")]
             public string OneCharacter;
 
-            [Params("C:\\files.txt")]
-            public string Path;
+            //[Params("C:\\files.txt")]
+            //public string Path;
+            //
+            //[Params("\n \t \n")] //"\n \0 \n"
+            //public string Combo; //rem?
 
-            [Params("\n \t \n")]
-            public string Combo;
+            [Benchmark]
+            public void Benchmark() { }
+        }
+
+        [Fact]
+        public void SpecialCharactersInCharAreSupported() => CanExecute<CompileSpecialCharactersInChar>();
+
+        public class CompileSpecialCharactersInChar
+        {
+            //split and rename
+            [Params('\0', '\n', '\t', '\\', '\"', '\u0061')]
+            public char OneCharacter;
 
             [Benchmark]
             public void Benchmark() { }
