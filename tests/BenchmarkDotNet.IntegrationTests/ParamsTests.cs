@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BenchmarkDotNet.Attributes;
 using Xunit;
 using Xunit.Abstractions;
@@ -144,18 +145,20 @@ namespace BenchmarkDotNet.IntegrationTests
 
         public class SpecialCharacters
         {
-            [Params("\0", "\t", "\n", "\n\n\n", "\n \t \n", "\\", @"""", "\u0061", "\x0061", "\x61")]
-            public string Field;
+            [Params("\0", "\t", "\n", "\\", "\"", "\u0061")]
+            public string OneCharacter;
 
-            [Params("C:\files.txt")]
-            public string Field2;
+            [Params("C:\\files.txt")]
+            public string Path;
 
+            [Params("\n \0 \n")]
+            public string Combo; //rem?
+
+            [Benchmark]
             public void Benchmark()
             {
-                if (!char.IsControl(Field[0]))
-                {
+                if (!char.IsControl(OneCharacter.Single()))
                     throw new InvalidOperationException("Wring character escaping!");
-                }
             }
         }
 
