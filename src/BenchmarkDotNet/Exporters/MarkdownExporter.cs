@@ -51,8 +51,7 @@ namespace BenchmarkDotNet.Exporters
             CodeBlockStart = "``` ini",
             StartOfGroupHighlightStrategy = MarkdownHighlightStrategy.Bold,
             ColumnsStartWithSeparator = true,
-            EscapeHtml = true,
-            EscapePipe = true
+            EscapeHtml = true
         };
 
         public static readonly IExporter Atlassian = new MarkdownExporter
@@ -72,8 +71,7 @@ namespace BenchmarkDotNet.Exporters
         internal static readonly IExporter Mock = new MarkdownExporter
         {
             Dialect = nameof(Mock),
-            StartOfGroupHighlightStrategy = MarkdownHighlightStrategy.Marker,
-            EscapePipe = true
+            StartOfGroupHighlightStrategy = MarkdownHighlightStrategy.Marker
         };
 
         [PublicAPI] protected string Prefix = string.Empty;
@@ -87,7 +85,6 @@ namespace BenchmarkDotNet.Exporters
         [PublicAPI] protected bool ColumnsStartWithSeparator;
         [PublicAPI] protected string BoldMarkupFormat = "**{0}**";
         [PublicAPI] protected bool EscapeHtml;
-        [PublicAPI] protected bool EscapePipe;
 
         private MarkdownExporter() { }
 
@@ -187,7 +184,7 @@ namespace BenchmarkDotNet.Exporters
                     if (ColumnsStartWithSeparator)
                         logger.WriteStatistic(TableColumnSeparator.TrimStart());
                     table.PrintLine(separatorLine, logger, string.Empty, TableColumnSeparator, highlightRow, false, StartOfGroupHighlightStrategy,
-                        BoldMarkupFormat, false, false);
+                        BoldMarkupFormat, false);
                 }
 
                 // Each time we hit the start of a new group, alternative the color (in the console) or display bold in Markdown
@@ -200,7 +197,7 @@ namespace BenchmarkDotNet.Exporters
                     logger.WriteStatistic(TableColumnSeparator.TrimStart());
 
                 table.PrintLine(line, logger, string.Empty, TableColumnSeparator, highlightRow, table.FullContentStartOfHighlightGroup[rowCounter],
-                    StartOfGroupHighlightStrategy, BoldMarkupFormat, EscapeHtml, EscapePipe);
+                    StartOfGroupHighlightStrategy, BoldMarkupFormat, EscapeHtml);
                 rowCounter++;
             }
         }

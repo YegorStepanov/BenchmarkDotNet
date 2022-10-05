@@ -48,7 +48,7 @@ namespace BenchmarkDotNet.Reports
         }
 
         public static void PrintLine(this SummaryTable table, string[] line, ILogger logger, string leftDel, string rightDel,
-                                     bool highlightRow, bool startOfGroup, MarkdownExporter.MarkdownHighlightStrategy startOfGroupHighlightStrategy, string boldMarkupFormat, bool escapeHtml, bool escapePipe)
+                                     bool highlightRow, bool startOfGroup, MarkdownExporter.MarkdownHighlightStrategy startOfGroupHighlightStrategy, string boldMarkupFormat, bool escapeHtml)
         {
             for (int columnIndex = 0; columnIndex < table.ColumnCount; columnIndex++)
             {
@@ -58,8 +58,8 @@ namespace BenchmarkDotNet.Reports
                 }
 
                 string text = startOfGroup && startOfGroupHighlightStrategy == MarkdownExporter.MarkdownHighlightStrategy.Bold
-                    ? BuildBoldText(table, line, leftDel, rightDel, columnIndex, boldMarkupFormat, escapePipe)
-                    : BuildStandardText(table, line, leftDel, rightDel, columnIndex, escapePipe);
+                    ? BuildBoldText(table, line, leftDel, rightDel, columnIndex, boldMarkupFormat)
+                    : BuildStandardText(table, line, leftDel, rightDel, columnIndex);
                 if (escapeHtml)
                     text = text.HtmlEncode();
 
@@ -79,25 +79,25 @@ namespace BenchmarkDotNet.Reports
             logger.WriteLine();
         }
 
-        private static string BuildStandardText(SummaryTable table, string[] line, string leftDel, string rightDel, int columnIndex, bool escapePipe = false)
+        private static string BuildStandardText(SummaryTable table, string[] line, string leftDel, string rightDel, int columnIndex)
         {
             var buffer = GetClearBuffer();
 
             buffer.Append(leftDel);
             PadLeft(table, line, leftDel, rightDel, columnIndex, buffer);
-            buffer.Append(escapePipe ? line[columnIndex].Replace("|", "\\|") : line[columnIndex]);
+            buffer.Append(line[columnIndex]);
             buffer.Append(rightDel);
 
             return buffer.ToString();
         }
 
-        private static string BuildBoldText(SummaryTable table, string[] line, string leftDel, string rightDel, int columnIndex, string boldMarkupFormat, bool escapePipe = false)
+        private static string BuildBoldText(SummaryTable table, string[] line, string leftDel, string rightDel, int columnIndex, string boldMarkupFormat)
         {
             var buffer = GetClearBuffer();
 
             buffer.Append(leftDel);
             PadLeft(table, line, leftDel, rightDel, columnIndex, buffer);
-            buffer.AppendFormat(boldMarkupFormat, escapePipe ? line[columnIndex].Replace("|", "\\|") : line[columnIndex]);
+            buffer.AppendFormat(boldMarkupFormat, line[columnIndex]);
             buffer.Append(rightDel);
 
             return buffer.ToString();
