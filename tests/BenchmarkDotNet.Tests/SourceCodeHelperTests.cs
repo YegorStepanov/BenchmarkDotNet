@@ -43,7 +43,7 @@ namespace BenchmarkDotNet.Tests
         [Fact]
         public void CanEscapeJson()
         {
-            const string expected = "$\"{ \\\"message\\\": \\\"Hello, World!\\\" }\"";
+            const string expected = "\"{ \\\"message\\\": \\\"Hello, World!\\\" }\"";
 
             var actual = SourceCodeHelper.ToSourceCode("{ \"message\": \"Hello, World!\" }");
 
@@ -80,6 +80,8 @@ namespace BenchmarkDotNet.Tests
         [InlineData('\'', @"'\''")]
         [InlineData('\u0061', "'a'")]
         [InlineData('"', "'\"'")]
+        [InlineData('{', "'{'")]
+        [InlineData('}', "'}'")]
         public void CanEscapeControlCharactersInChar(char original, string excepted)
         {
             var actual = SourceCodeHelper.ToSourceCode(original);
