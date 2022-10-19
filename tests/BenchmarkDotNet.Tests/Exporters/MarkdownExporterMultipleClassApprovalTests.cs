@@ -159,6 +159,75 @@ namespace BenchmarkDotNet.Tests.Exporters
                     [Benchmark] public void Bar() { }
                 }
             }
+
+            public static class TwoBaselinesWithJobs111
+            {
+                [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
+                [LogicalGroupColumn, CategoriesColumn, BaselineColumn]
+                [BenchmarkCategory("A")]
+                [SimpleJob(id: "Job1"), SimpleJob(id: "Job2")]
+                public class Bench1
+                {
+                    [Params(10, 20)] public int Param;
+                    [Benchmark(Baseline = true)] public void Foo() { }
+                    [Benchmark] public void Bar() { }
+                }
+
+                [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
+                [BenchmarkCategory("B")]
+                public class Bench2
+                {
+                    [Params(10, 20)] public int Param;
+                    [Benchmark(Baseline = true)] public void Foo() { }
+                    [Benchmark] public void Bar() { }
+                }
+            }
+
+            public static class TwoBaselinesWithJobs222
+            {
+                [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByType)]
+                [LogicalGroupColumn, CategoriesColumn, BaselineColumn]
+                [BenchmarkCategory("A")]
+                [SimpleJob(id: "Job1"), SimpleJob(id: "Job2")]
+                public class Bench1
+                {
+                    [Params(10, 20)] public int Param;
+                    [Benchmark(Baseline = true)] public void Foo() { }
+                    [Benchmark] public void Bar() { }
+                }
+
+                [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByType)]
+                [BenchmarkCategory("B")]
+                public class Bench2
+                {
+                    [Params(10, 20)] public int Param;
+                    [Benchmark(Baseline = true)] public void Foo() { }
+                    [Benchmark] public void Bar() { }
+                }
+            }
+
+            public static class TwoBaselinesWithJobs333
+            {
+                [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByMethod)]
+                [LogicalGroupColumn, CategoriesColumn, BaselineColumn]
+                [BenchmarkCategory("A")]
+                [SimpleJob(id: "Job1"), SimpleJob(id: "Job2")]
+                public class Bench1
+                {
+                    [Params(10, 20)] public int Param;
+                    [Benchmark(Baseline = true)] public void Foo() { }
+                    [Benchmark] public void Bar() { }
+                }
+
+                [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByMethod)]
+                [BenchmarkCategory("B")]
+                public class Bench2
+                {
+                    [Params(10, 20)] public int Param;
+                    [Benchmark(Baseline = true)] public void Foo() { }
+                    [Benchmark] public void Bar() { }
+                }
+            }
         }
     }
 }
