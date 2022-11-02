@@ -12,6 +12,7 @@ namespace BenchmarkDotNet.Parameters
 
         public ParameterDefinitions(IReadOnlyList<ParameterDefinition> items) => Items = items;
 
+        // permutations or combinations without repetition
         public IReadOnlyList<ParameterInstances> Expand(SummaryStyle summaryStyle) => Expand(new[] { new ParameterInstances(new List<ParameterInstance>()) }, Items, summaryStyle);
 
         private static IReadOnlyList<ParameterInstances> Expand(IReadOnlyList<ParameterInstances> instancesList, IReadOnlyList<ParameterDefinition> definitions, SummaryStyle summaryStyle)

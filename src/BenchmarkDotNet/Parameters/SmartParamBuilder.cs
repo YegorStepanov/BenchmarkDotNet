@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using BenchmarkDotNet.Code;
@@ -13,7 +12,6 @@ namespace BenchmarkDotNet.Parameters
 {
     internal static class SmartParamBuilder
     {
-        [SuppressMessage("ReSharper", "CoVariantArrayConversion")]
         internal static object[] CreateForParams(Type parameterType, MemberInfo source, object[] values)
         {
             // IEnumerable<object>
@@ -24,7 +22,7 @@ namespace BenchmarkDotNet.Parameters
             if (values.All(value => value is object[] array && array.Length == 1 && SourceCodeHelper.IsCompilationTimeConstant(array[0])))
                 return values.Select(x => ((object[])x)[0]).ToArray();
 
-            return values.Select((value, index) => new SmartParameter(parameterType, source, value, index)).ToArray();
+            return values.Select((value, index) => (object)new SmartParameter(parameterType, source, value, index)).ToArray();
         }
 
         internal static ParameterInstances CreateForArguments(MethodInfo benchmark, ParameterDefinition[] parameterDefinitions, (MemberInfo source, object[] values) valuesInfo, int sourceIndex, SummaryStyle summaryStyle)
@@ -43,8 +41,8 @@ namespace BenchmarkDotNet.Parameters
 
                 if (parameterDefinitions.Length > 1)
                 {
-                    if (parameterDefinitions.Length != array.Length)
-                        throw new InvalidOperationException($"Benchmark {benchmark.Name} has invalid number of arguments provided by [ArgumentsSource({valuesInfo.source.Name})]! {array.Length} instead of {parameterDefinitions.Length}.");
+                    // if (parameterDefinitions.Length != array.Length)
+                    //     throw new InvalidOperationException($"Benchmark {benchmark.Name} has invalid number of arguments provided by [ArgumentsSource({valuesInfo.source.Name})]! {array.Length} instead of {parameterDefinitions.Length}.");
 
                     return new ParameterInstances(
                         array.Select((value, argumentIndex) => Create(parameterDefinitions, value, valuesInfo.source, sourceIndex, argumentIndex, summaryStyle)).ToArray());
