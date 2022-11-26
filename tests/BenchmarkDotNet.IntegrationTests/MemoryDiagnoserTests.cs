@@ -281,6 +281,11 @@ namespace BenchmarkDotNet.IntegrationTests
 
         private void AssertAllocations(IToolchain toolchain, Type benchmarkType, Dictionary<string, long> benchmarksAllocationsValidators)
         {
+            for (int i = 0; i < 100; i++)
+            {
+                _ = i.ToString();
+            }
+
             var config = CreateConfig(toolchain);
             var benchmarks = BenchmarkConverter.TypeToBenchmarks(benchmarkType, config);
 
