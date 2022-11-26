@@ -31,7 +31,7 @@ namespace BenchmarkDotNet.IntegrationTests
     //
     //
     //
-    //abcdef
+    //abcdefg
     public class MemoryDiagnoserTests
     {
         private readonly ITestOutputHelper output;
