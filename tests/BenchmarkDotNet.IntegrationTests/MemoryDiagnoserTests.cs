@@ -26,6 +26,7 @@ using Xunit.Abstractions;
 
 namespace BenchmarkDotNet.IntegrationTests
 {
+    //todo
     public class MemoryDiagnoserTests
     {
         private readonly ITestOutputHelper output;
