@@ -113,7 +113,4 @@
       <LastGenOutput>RunnableVoidCaseBenchmark.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Diagnosers" />
-  </ItemGroup>
 </Project>
