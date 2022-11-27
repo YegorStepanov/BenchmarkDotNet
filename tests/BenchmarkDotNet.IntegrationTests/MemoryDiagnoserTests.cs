@@ -23,6 +23,7 @@ using BenchmarkDotNet.Toolchains.NativeAot;
 using BenchmarkDotNet.Toolchains.InProcess.Emit;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace BenchmarkDotNet.IntegrationTests
 {
@@ -49,10 +50,14 @@ namespace BenchmarkDotNet.IntegrationTests
 
         public class AccurateAllocations
         {
-            [Benchmark] public byte[] EightBytesArray() => new byte[8];
-            [Benchmark] public byte[] SixtyFourBytesArray() => new byte[64];
+            [Benchmark]
+            public byte[] EightBytesArray() => new byte[8];
 
-            [Benchmark] public Task<int> AllocateTask() => Task.FromResult<int>(-12345);
+            [Benchmark]
+            public byte[] SixtyFourBytesArray() => new byte[64];
+
+            [Benchmark]
+            public Task<int> AllocateTask() => Task.FromResult<int>(-12345);
         }
 
         [Theory, MemberData(nameof(GetToolchains))]
@@ -66,7 +71,6 @@ namespace BenchmarkDotNet.IntegrationTests
             {
                 { nameof(AccurateAllocations.EightBytesArray), 8 + objectAllocationOverhead + arraySizeOverhead },
                 { nameof(AccurateAllocations.SixtyFourBytesArray), 64 + objectAllocationOverhead + arraySizeOverhead },
-
                 { nameof(AccurateAllocations.AllocateTask), CalculateRequiredSpace<Task<int>>() },
             });
         }
@@ -91,7 +95,8 @@ namespace BenchmarkDotNet.IntegrationTests
         {
             private List<int> list;
 
-            [Benchmark] public void AllocateNothing() { }
+            [Benchmark]
+            public void AllocateNothing() { }
 
             [IterationSetup]
             [GlobalSetup]
@@ -122,7 +127,8 @@ namespace BenchmarkDotNet.IntegrationTests
 
         public class NoAllocationsAtAll
         {
-            [Benchmark] public void EmptyMethod() { }
+            [Benchmark]
+            public void EmptyMethod() { }
         }
 
         [Theory, MemberData(nameof(GetToolchains))]
@@ -137,7 +143,8 @@ namespace BenchmarkDotNet.IntegrationTests
 
         public class NoBoxing
         {
-            [Benchmark] public ValueTuple<int> ReturnsValueType() => new ValueTuple<int>(0);
+            [Benchmark]
+            public ValueTuple<int> ReturnsValueType() => new ValueTuple<int>(0);
         }
 
         [Theory, MemberData(nameof(GetToolchains))]
@@ -154,11 +161,14 @@ namespace BenchmarkDotNet.IntegrationTests
         {
             private readonly Task<int> completedTaskOfT = Task.FromResult(default(int)); // we store it in the field, because Task<T> is reference type so creating it allocates heap memory
 
-            [Benchmark] public Task CompletedTask() => Task.CompletedTask;
+            [Benchmark]
+            public Task CompletedTask() => Task.CompletedTask;
 
-            [Benchmark] public Task<int> CompletedTaskOfT() => completedTaskOfT;
+            [Benchmark]
+            public Task<int> CompletedTaskOfT() => completedTaskOfT;
 
-            [Benchmark] public ValueTask<int> CompletedValueTaskOfT() => new ValueTask<int>(default(int));
+            [Benchmark]
+            public ValueTask<int> CompletedValueTaskOfT() => new ValueTask<int>(default(int));
         }
 
         [Theory, MemberData(nameof(GetToolchains))]
@@ -281,37 +291,47 @@ namespace BenchmarkDotNet.IntegrationTests
 
         private void AssertAllocations(IToolchain toolchain, Type benchmarkType, Dictionary<string, long> benchmarksAllocationsValidators)
         {
-            for (int i = 0; i < 100; i++)
-            {
-                _ = i.ToString();
-            }
-
             var config = CreateConfig(toolchain);
             var benchmarks = BenchmarkConverter.TypeToBenchmarks(benchmarkType, config);
 
-            var summary = BenchmarkRunner.Run(benchmarks);
-
-            foreach (var benchmarkAllocationsValidator in benchmarksAllocationsValidators)
+            var completedIndex = 0;
+            for (int i = 0; i < 10; i++)
             {
-                // NativeAOT is missing some of the CoreCLR threading/task related perf improvements, so sizeof(Task<int>) calculated for CoreCLR < sizeof(Task<int>) on CoreRT
-                // see https://github.com/dotnet/corert/issues/5705 for more
-                if (benchmarkAllocationsValidator.Key == nameof(AccurateAllocations.AllocateTask) && toolchain is NativeAotToolchain)
-                    continue;
-
-                var allocatingBenchmarks = benchmarks.BenchmarksCases.Where(benchmark => benchmark.DisplayInfo.Contains(benchmarkAllocationsValidator.Key));
-
-                foreach (var benchmark in allocatingBenchmarks)
+                try
                 {
-                    var benchmarkReport = summary.Reports.Single(report => report.BenchmarkCase == benchmark);
+                    var summary = BenchmarkRunner.Run(benchmarks);
 
-                    Assert.Equal(benchmarkAllocationsValidator.Value, benchmarkReport.GcStats.GetBytesAllocatedPerOperation(benchmark));
-
-                    if (benchmarkAllocationsValidator.Value == 0)
+                    foreach (var benchmarkAllocationsValidator in benchmarksAllocationsValidators)
                     {
-                        Assert.Equal(0, benchmarkReport.GcStats.GetTotalAllocatedBytes(excludeAllocationQuantumSideEffects: true));
+                        // NativeAOT is missing some of the CoreCLR threading/task related perf improvements, so sizeof(Task<int>) calculated for CoreCLR < sizeof(Task<int>) on CoreRT
+                        // see https://github.com/dotnet/corert/issues/5705 for more
+                        if (benchmarkAllocationsValidator.Key == nameof(AccurateAllocations.AllocateTask) && toolchain is NativeAotToolchain)
+                            continue;
+
+                        var allocatingBenchmarks = benchmarks.BenchmarksCases.Where(benchmark => benchmark.DisplayInfo.Contains(benchmarkAllocationsValidator.Key));
+
+                        foreach (var benchmark in allocatingBenchmarks)
+                        {
+                            var benchmarkReport = summary.Reports.Single(report => report.BenchmarkCase == benchmark);
+
+                            Assert.Equal(benchmarkAllocationsValidator.Value, benchmarkReport.GcStats.GetBytesAllocatedPerOperation(benchmark));
+
+                            if (benchmarkAllocationsValidator.Value == 0)
+                            {
+                                Assert.Equal(0, benchmarkReport.GcStats.GetTotalAllocatedBytes(excludeAllocationQuantumSideEffects: true));
+                            }
+                        }
                     }
+
+                    break;
+                }
+                catch (XunitException)
+                {
+                    completedIndex++;
                 }
             }
+
+            Assert.Equal(0, completedIndex);
         }
 
         private IConfig CreateConfig(IToolchain toolchain)
@@ -356,6 +376,31 @@ namespace BenchmarkDotNet.IntegrationTests
                 .Where(field => !field.IsStatic && !field.IsLiteral)
                 .Distinct()
                 .Sum(field => GetSize(field.FieldType));
+        }
+    }
+}
+
+public sealed class RepeatAttribute : Xunit.Sdk.DataAttribute
+{
+    private readonly int count;
+
+    public RepeatAttribute(int count)
+    {
+        if (count < 1)
+        {
+            throw new System.ArgumentOutOfRangeException(
+                paramName: nameof(count),
+                message: "Repeat count must be greater than 0."
+                );
+        }
+        this.count = count;
+    }
+
+    public override System.Collections.Generic.IEnumerable<object[]> GetData(System.Reflection.MethodInfo testMethod)
+    {
+        foreach (var iterationNumber in Enumerable.Range(start: 1, count: this.count))
+        {
+            yield return new object[] { iterationNumber };
         }
     }
 }
