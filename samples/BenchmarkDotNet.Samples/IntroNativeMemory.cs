@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#if WINDOWS
+using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
@@ -54,3 +55,4 @@ namespace BenchmarkDotNet.Samples
         }
     }
 }
+//#endif
